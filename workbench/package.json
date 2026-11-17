@@ -1,0 +1,17 @@
+{
+  "name": "metricspfx-workbench",
+  "private": true,
+  "type": "module",
+  "description": "Local workbench for the Metrics web part: Vite + live reload + mock SharePoint REST.",
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
+    "fixtures": "node scripts/gen-fixtures.mjs"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}

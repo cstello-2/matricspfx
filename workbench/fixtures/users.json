@@ -1,0 +1,86 @@
+[
+  {
+    "Id": 10,
+    "Title": "Avery Hughes",
+    "EMail": "avery.hughes@contoso.dev",
+    "LoginName": "i:0#.f|membership|avery.hughes@contoso.dev",
+    "Department": "Operations"
+  },
+  {
+    "Id": 11,
+    "Title": "Jordan Patel",
+    "EMail": "jordan.patel@contoso.dev",
+    "LoginName": "i:0#.f|membership|jordan.patel@contoso.dev",
+    "Department": "Engineering"
+  },
+  {
+    "Id": 12,
+    "Title": "Riley Chen",
+    "EMail": "riley.chen@contoso.dev",
+    "LoginName": "i:0#.f|membership|riley.chen@contoso.dev",
+    "Department": "Marketing"
+  },
+  {
+    "Id": 13,
+    "Title": "Sam Okafor",
+    "EMail": "sam.okafor@contoso.dev",
+    "LoginName": "i:0#.f|membership|sam.okafor@contoso.dev",
+    "Department": "Engineering"
+  },
+  {
+    "Id": 14,
+    "Title": "Taylor Brooks",
+    "EMail": "taylor.brooks@contoso.dev",
+    "LoginName": "i:0#.f|membership|taylor.brooks@contoso.dev",
+    "Department": "Operations"
+  },
+  {
+    "Id": 15,
+    "Title": "Casey Nguyen",
+    "EMail": "casey.nguyen@contoso.dev",
+    "LoginName": "i:0#.f|membership|casey.nguyen@contoso.dev",
+    "Department": "Engineering"
+  },
+  {
+    "Id": 16,
+    "Title": "Morgan Silva",
+    "EMail": "morgan.silva@contoso.dev",
+    "LoginName": "i:0#.f|membership|morgan.silva@contoso.dev",
+    "Department": "Operations"
+  },
+  {
+    "Id": 17,
+    "Title": "Jamie Novak",
+    "EMail": "jamie.novak@contoso.dev",
+    "LoginName": "i:0#.f|membership|jamie.novak@contoso.dev",
+    "Department": "Engineering"
+  },
+  {
+    "Id": 18,
+    "Title": "Drew Larsen",
+    "EMail": "drew.larsen@contoso.dev",
+    "LoginName": "i:0#.f|membership|drew.larsen@contoso.dev",
+    "Department": "Finance"
+  },
+  {
+    "Id": 19,
+    "Title": "Quinn Romero",
+    "EMail": "quinn.romero@contoso.dev",
+    "LoginName": "i:0#.f|membership|quinn.romero@contoso.dev",
+    "Department": "Finance"
+  },
+  {
+    "Id": 20,
+    "Title": "Robin Haddad",
+    "EMail": "robin.haddad@contoso.dev",
+    "LoginName": "i:0#.f|membership|robin.haddad@contoso.dev",
+    "Department": "Finance"
+  },
+  {
+    "Id": 21,
+    "Title": "Skyler Kim",
+    "EMail": "skyler.kim@contoso.dev",
+    "LoginName": "i:0#.f|membership|skyler.kim@contoso.dev",
+    "Department": "Operations"
+  }
+]

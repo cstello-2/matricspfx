@@ -1,0 +1,69 @@
+{
+  "title": "Policy library",
+  "description": "Company policies with AI topic tagging.",
+  "dataSources": {
+    "policies": { "type": "spList", "list": "Policies", "select": ["Id", "Title", "FileLeafRef", "Department", "Topics", "Created", "Modified"] }
+  },
+  "list": {
+    "source": "policies",
+    "title": "Documents",
+    "keyPrefix": "DOC",
+    "columns": [
+      { "field": "FileLeafRef", "title": "Name" },
+      "Title",
+      "Department",
+      "Topics",
+      "Modified"
+    ],
+    "sort": "Title",
+    "quickFilters": ["Department", "Topics"],
+    "form": {
+      "main": ["Summary"],
+      "side": [{ "title": "Classification", "fields": ["Department", "Topics"] }],
+      "comments": true
+    },
+    "autotag": {
+      "field": "Topics",
+      "api": {
+        "baseUrl": "/mock-ai/v1",
+        "embeddingModel": "mock-embedding",
+        "chatModel": "mock-chat"
+      },
+      "tagDescriptions": {
+        "HR": "people, employees, onboarding, benefits, leave, new starters, training",
+        "Finance": "money, budget, expenses, receipts, purchase orders, reimbursement",
+        "Travel": "flights, hotels, trips, taxis, mileage, booking travel",
+        "Security": "passwords, multi-factor authentication, phishing, VPN, incidents, devices",
+        "Remote work": "working from home, home office, flexible working, remote",
+        "Privacy": "personal data, GDPR, retention, data protection officer, deletion",
+        "Health and safety": "fire exits, accidents, first aid, safe workplace",
+        "Procurement": "purchasing, suppliers, purchase orders, software licensing",
+        "Conduct": "behaviour, respect, harassment, gifts, conflicts of interest"
+      },
+      "sourceFields": ["Title", "Summary"],
+      "includeFileText": true,
+      "maxTags": 3,
+      "minScore": 0.05,
+      "mode": "review",
+      "allow": ["owners", "listOwners", "Policy Editors"]
+    }
+  },
+  "datasets": {
+    "untagged": { "from": "policies", "filter": "len(Topics) == 0" },
+    "byDepartment": { "from": "policies", "groupBy": ["Department"], "aggregate": { "documents": "count()" }, "sort": "-documents" }
+  },
+  "widgets": [
+    { "type": "kpi", "span": 4, "dataset": "policies", "label": "Documents", "value": "count()" },
+    {
+      "type": "kpi", "span": 4, "dataset": "policies", "label": "Tagged", "value": "countIf(len(Topics) > 0) / count()", "format": "percent",
+      "target": 1,
+      "thresholds": [{ "when": "value >= 0.9", "level": "good" }, { "when": "value >= 0.5", "level": "warning" }, { "when": "true", "level": "serious", "label": "Needs tagging" }]
+    },
+    { "type": "kpi", "span": 4, "dataset": "untagged", "label": "Untagged documents", "value": "count()" },
+    { "type": "chart", "chart": "bar", "span": 6, "title": "Documents by department", "dataset": "byDepartment", "x": "Department", "y": "documents" },
+    {
+      "type": "table", "span": 6, "title": "Recently changed", "dataset": { "from": "policies", "sort": "-Modified", "limit": 6 },
+      "columns": ["Title", "Department", { "field": "Modified", "format": "date" }]
+    }
+  ]
+}

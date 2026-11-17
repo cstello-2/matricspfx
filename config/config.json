@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "metrics-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/metrics/MetricsWebPart.js",
+          "manifest": "./src/webparts/metrics/MetricsWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "MetricsWebPartStrings": "lib/webparts/metrics/loc/{locale}.js"
+  }
+}

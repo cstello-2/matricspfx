@@ -1,0 +1,22 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "whichFolder": "subdir",
+    "solutionName": "metricspfx",
+    "environment": "spo",
+    "packageManager": "npm",
+    "skipFeatureDeployment": true,
+    "useGulp": false,
+    "componentType": "webpart",
+    "template": "react",
+    "componentName": "Metrics",
+    "componentDescription": "Declarative JSON metrics, KPIs, charts and relational tables from SharePoint lists",
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.23.4",
+    "sdksVersions": {},
+    "version": "1.24.1",
+    "libraryName": "metricspfx",
+    "libraryId": "344c132f-928d-4e54-90f1-0a72d5a9bd3d",
+    "solutionShortDescription": "metricspfx description"
+  }
+}

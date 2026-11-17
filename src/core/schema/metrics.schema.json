@@ -1,0 +1,1232 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.invalid/metricspfx/metrics.schema.json",
+  "title": "Metrics web part configuration",
+  "description": "Declarative KPIs, charts and tables over SharePoint lists, inline data and REST endpoints.",
+  "type": "object",
+  "required": [
+    "dataSources",
+    "widgets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "description": "Dashboard heading."
+    },
+    "description": {
+      "type": "string",
+      "description": "Text under the heading."
+    },
+    "refreshSeconds": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Reload all data every N seconds (minimum 15). 0 = never."
+    },
+    "locale": {
+      "type": "string",
+      "description": "Locale for number/date formatting, e.g. \"en-GB\". Defaults to the page language."
+    },
+    "dataSources": {
+      "type": "object",
+      "description": "Named raw data sources.",
+      "additionalProperties": {
+        "$ref": "#/definitions/dataSource"
+      }
+    },
+    "datasets": {
+      "type": "object",
+      "description": "Named derived datasets: joins, filters, computed fields, grouping and aggregation.",
+      "additionalProperties": {
+        "$ref": "#/definitions/dataset"
+      }
+    },
+    "widgets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/widget"
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 12,
+          "description": "Grid columns."
+        },
+        "gap": {
+          "type": "number",
+          "minimum": 0,
+          "default": 16,
+          "description": "Gap between widgets in px."
+        }
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "palette": {
+          "description": "\"default\" (validated colorblind-safe palette), \"theme\" (lead with the site theme color) or a list of hex colors.",
+          "oneOf": [
+            {
+              "enum": [
+                "default",
+                "theme"
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "cardStyle": {
+          "enum": [
+            "outlined",
+            "elevated",
+            "flat"
+          ],
+          "default": "outlined"
+        }
+      }
+    },
+    "list": {
+      "$ref": "#/definitions/list"
+    },
+    "dataView": {
+      "description": "The Data tab: lets viewers browse and export the rows the metrics are built from. Shown by default with every data source; set to false to hide it.",
+      "oneOf": [
+        {
+          "const": false
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Tab label. Default \"Data\"."
+            },
+            "sources": {
+              "type": "array",
+              "description": "Data sources or datasets to show, in order. Default: every data source.",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "name"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "columns": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/definitions/column"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "pageSize": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 50
+            },
+            "export": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show the Export CSV button."
+            }
+          }
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "formEntry": {
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Field internal name."
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fields"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Section heading."
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Field internal names, in order."
+            },
+            "columns": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ],
+              "default": 1,
+              "description": "Lay the fields out in one or two columns."
+            }
+          }
+        }
+      ]
+    },
+    "expression": {
+      "type": "string",
+      "description": "Expression, e.g. \"Hours * 1.2\", \"Status == 'Open' && !Done\", \"sum(Hours) / count()\". Fields: Name, lookup.Field, `Name With Spaces`. Variables: $today, $now, $user.email, $user.name. Functions: if, coalesce, round, floor, ceil, abs, min, max, safeDiv, pct, lower, upper, contains, startsWith, endsWith, replace, left, right, len, split, join, concat, date, year, month, day, weekday, quarter, addDays, addMonths, daysBetween, startOf, bucket, formatDate. Aggregates: sum, avg, min, max, count, countIf, distinct, median, percentile, stdev, first, last."
+    },
+    "datasetRef": {
+      "description": "Name of a dataset or data source, or an inline dataset definition.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/definitions/dataset"
+        }
+      ]
+    },
+    "dataSource": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "spList"
+            },
+            "list": {
+              "type": "string",
+              "description": "List title."
+            },
+            "listId": {
+              "type": "string",
+              "description": "List GUID (instead of the title)."
+            },
+            "webUrl": {
+              "type": "string",
+              "description": "Site URL (absolute or server-relative). Default: current site."
+            },
+            "select": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields to load. Use \"Lookup/Field\" for lookup and person columns, e.g. \"AssignedTo/Title\"; $expand is derived automatically."
+            },
+            "expand": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "filter": {
+              "type": "string",
+              "description": "OData $filter evaluated by SharePoint, e.g. \"Status eq 'Open'\". Use indexed columns on lists over 5000 items."
+            },
+            "orderBy": {
+              "type": "string",
+              "description": "OData $orderby, e.g. \"Created desc\"."
+            },
+            "top": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 5000,
+              "description": "Maximum number of items to load (pages automatically)."
+            },
+            "pageSize": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5000,
+              "default": 1000
+            },
+            "rename": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Rename fields, e.g. { \"Due_x0020_Date\": \"Due\" }."
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "anyOf": [
+            {
+              "required": [
+                "list"
+              ]
+            },
+            {
+              "required": [
+                "listId"
+              ]
+            }
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "inline"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "type",
+            "rows"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "rest"
+            },
+            "url": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string",
+              "description": "Dot path to the array in the response, e.g. \"data.items\"."
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "sharepoint": {
+              "type": "boolean",
+              "description": "Use the SharePoint-authenticated client. Default: true for URLs containing /_api/."
+            }
+          },
+          "required": [
+            "type",
+            "url"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "dataset": {
+      "type": "object",
+      "required": [
+        "from"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "description": "Source or dataset name; an array concatenates several (union).",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            }
+          ]
+        },
+        "join": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "source",
+              "on"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "on": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "description": "[leftField, rightField]. A multi-value lookup on the left matches any of its ids."
+              },
+              "as": {
+                "type": "string",
+                "description": "Property the joined row is stored under (default: the source name). Access fields as as.Field."
+              },
+              "type": {
+                "enum": [
+                  "left",
+                  "inner"
+                ],
+                "default": "left"
+              },
+              "many": {
+                "type": "boolean",
+                "description": "One-to-many: store all matches as an array (use sum(as.Field), count(as)) instead of multiplying rows."
+              }
+            }
+          }
+        },
+        "filter": {
+          "$ref": "#/definitions/expression"
+        },
+        "compute": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/expression"
+          },
+          "description": "New fields per row, evaluated in order."
+        },
+        "groupBy": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "field"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "Field path or expression."
+                  },
+                  "as": {
+                    "type": "string"
+                  },
+                  "bucket": {
+                    "enum": [
+                      "day",
+                      "week",
+                      "month",
+                      "quarter",
+                      "year"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "aggregate": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/expression"
+          },
+          "description": "Aggregate expressions per group, e.g. { \"hours\": \"sum(Hours)\" }. Default { \"count\": \"count()\" }."
+        },
+        "having": {
+          "$ref": "#/definitions/expression"
+        },
+        "sort": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "\"field\", \"-field\" or \"field desc\"."
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "format": {
+      "oneOf": [
+        {
+          "enum": [
+            "number",
+            "integer",
+            "decimal",
+            "percent",
+            "currency",
+            "compact",
+            "date",
+            "datetime",
+            "text"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "enum": [
+                "number",
+                "integer",
+                "decimal",
+                "percent",
+                "currency",
+                "compact",
+                "date",
+                "datetime",
+                "text"
+              ]
+            },
+            "decimals": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "currency": {
+              "type": "string",
+              "description": "ISO currency code, e.g. EUR."
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "threshold": {
+      "type": "object",
+      "required": [
+        "when",
+        "level"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "when": {
+          "$ref": "#/definitions/expression",
+          "description": "Uses `value` (and `target`). First match wins."
+        },
+        "level": {
+          "enum": [
+            "good",
+            "warning",
+            "serious",
+            "critical",
+            "neutral",
+            "info"
+          ]
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "column": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": [
+            "field"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "field": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "format": {
+              "$ref": "#/definitions/format"
+            },
+            "width": {
+              "type": "number"
+            },
+            "align": {
+              "enum": [
+                "left",
+                "right",
+                "center"
+              ]
+            },
+            "bar": {
+              "type": "boolean",
+              "description": "Inline data bar."
+            },
+            "link": {
+              "$ref": "#/definitions/expression",
+              "description": "Expression producing a URL."
+            },
+            "status": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/threshold"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "widget": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "kpi",
+            "chart",
+            "table",
+            "text"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Columns to span. Default: kpi 3, chart 6, table 12."
+        },
+        "height": {
+          "type": "number"
+        },
+        "dataset": {
+          "$ref": "#/definitions/datasetRef"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "kpi"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "dataset",
+              "value"
+            ],
+            "properties": {
+              "value": {
+                "$ref": "#/definitions/expression",
+                "description": "Aggregate over the dataset, e.g. \"sum(Hours)\"."
+              },
+              "label": {
+                "type": "string"
+              },
+              "format": {
+                "$ref": "#/definitions/format"
+              },
+              "compare": {
+                "type": "object",
+                "required": [
+                  "value"
+                ],
+                "properties": {
+                  "value": {
+                    "$ref": "#/definitions/expression"
+                  },
+                  "dataset": {
+                    "$ref": "#/definitions/datasetRef"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "enum": [
+                      "percent",
+                      "absolute"
+                    ]
+                  },
+                  "goodWhen": {
+                    "enum": [
+                      "up",
+                      "down"
+                    ]
+                  }
+                }
+              },
+              "target": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/definitions/expression"
+                  }
+                ]
+              },
+              "thresholds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/threshold"
+                }
+              },
+              "sparkline": {
+                "type": "object",
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "properties": {
+                  "dataset": {
+                    "$ref": "#/definitions/datasetRef"
+                  },
+                  "x": {
+                    "type": "string"
+                  },
+                  "y": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "chart"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "dataset",
+              "chart"
+            ],
+            "properties": {
+              "chart": {
+                "enum": [
+                  "bar",
+                  "column",
+                  "line",
+                  "area",
+                  "pie",
+                  "donut",
+                  "scatter",
+                  "gauge",
+                  "funnel",
+                  "heatmap",
+                  "sankey",
+                  "treemap",
+                  "radar"
+                ],
+                "description": "bar = horizontal bars, column = vertical."
+              },
+              "x": {
+                "type": "string",
+                "description": "Category field (label field for pie/donut/funnel/treemap)."
+              },
+              "y": {
+                "description": "Value field or fields.",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "field"
+                          ],
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "enum": [
+                                "bar",
+                                "line",
+                                "area"
+                              ]
+                            },
+                            "color": {
+                              "type": "string"
+                            },
+                            "stack": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "field"
+                    ],
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "series": {
+                "type": "string",
+                "description": "Split into one series per value of this field (heatmap: row category)."
+              },
+              "stacked": {
+                "type": "boolean"
+              },
+              "from": {
+                "type": "string",
+                "description": "Sankey source field."
+              },
+              "to": {
+                "type": "string",
+                "description": "Sankey target field."
+              },
+              "value": {
+                "type": "string",
+                "description": "Value field (heatmap, sankey) or aggregate expression (gauge)."
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              },
+              "format": {
+                "$ref": "#/definitions/format"
+              },
+              "showLegend": {
+                "type": "boolean"
+              },
+              "labels": {
+                "oneOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "const": "auto"
+                  }
+                ]
+              },
+              "smooth": {
+                "type": "boolean"
+              },
+              "colors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "echarts": {
+                "type": "object",
+                "description": "Raw Apache ECharts options, deep-merged into the generated ones."
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "table"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "dataset"
+            ],
+            "properties": {
+              "columns": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/column"
+                }
+              },
+              "pageSize": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "search": {
+                "type": "boolean"
+              },
+              "detail": {
+                "type": "object",
+                "required": [
+                  "dataset",
+                  "on"
+                ],
+                "properties": {
+                  "dataset": {
+                    "$ref": "#/definitions/datasetRef"
+                  },
+                  "on": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "description": "[masterField, detailField]"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "columns": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/column"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "text"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "description": "Text with {{ aggregate | format }} placeholders and **bold**."
+              }
+            }
+          }
+        }
+      ]
+    },
+    "list": {
+      "type": "object",
+      "description": "A Jira-style list view of a SharePoint list, shown as the first tab, with a full-screen item form and comments.",
+      "required": [
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Name of an spList data source."
+        },
+        "title": {
+          "type": "string",
+          "description": "Tab label. Defaults to the list title."
+        },
+        "keyPrefix": {
+          "type": "string",
+          "description": "Prefix for item keys, e.g. \"TASK\" shows TASK-12."
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/column"
+          },
+          "description": "Columns in display order. Use \"Field\" or \"Lookup.Field\"."
+        },
+        "sort": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Default sort, e.g. \"-Modified\"."
+        },
+        "filter": {
+          "$ref": "#/definitions/expression",
+          "description": "Only show items matching this expression."
+        },
+        "pageSize": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 25
+        },
+        "search": {
+          "type": "boolean",
+          "default": true
+        },
+        "quickFilters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields offered as filter dropdowns above the list."
+        },
+        "statusColors": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "good",
+              "warning",
+              "serious",
+              "critical",
+              "neutral",
+              "info"
+            ]
+          },
+          "description": "Lozenge color per status value, e.g. { \"Done\": \"good\", \"Blocked\": \"critical\" }."
+        },
+        "form": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "Field used as the item heading. Default Title."
+            },
+            "description": {
+              "type": "string",
+              "description": "Multi-line field shown in the main column. Shorthand for \"main\": [\"<field>\"]."
+            },
+            "status": {
+              "type": "string",
+              "description": "Choice field shown as the status lozenge. Placed first in the right column unless listed in \"main\" or \"side\"."
+            },
+            "main": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/formEntry"
+              },
+              "description": "Main (left) column below the title, in order. Field names, or sections like { \"title\": \"Effort\", \"columns\": 2, \"fields\": [\"Estimate\", \"Actual\"] }."
+            },
+            "side": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/formEntry"
+              },
+              "description": "Right column, in order. Each section is a card; loose field names go in a \"Details\" card. Defaults to the list columns."
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Older alias for \"side\" with plain field names."
+            },
+            "sideWidth": {
+              "type": "number",
+              "minimum": 260,
+              "maximum": 640,
+              "default": 380,
+              "description": "Maximum width of the right column in pixels."
+            },
+            "readOnly": {
+              "oneOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "description": "Disable editing, for all fields or the listed ones."
+            },
+            "comments": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "autotag": {
+          "type": "object",
+          "description": "AI auto-tagging with an OpenAI-compatible API: embeddings rank the available tags against each item, and an optional chat model picks from the closest ones.",
+          "required": [
+            "field",
+            "api"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "field": {
+              "type": "string",
+              "description": "Column holding the tags: choice, multi-choice, lookup, multi-lookup or text."
+            },
+            "api": {
+              "type": "object",
+              "required": [
+                "baseUrl",
+                "embeddingModel"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "baseUrl": {
+                  "type": "string",
+                  "description": "OpenAI-compatible base URL, e.g. \"https://ai.example.com/v1\". Must allow CORS from SharePoint."
+                },
+                "embeddingModel": {
+                  "type": "string"
+                },
+                "chatModel": {
+                  "type": "string",
+                  "description": "Optional. When set, the chat model chooses among the closest tags."
+                },
+                "batchSize": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "default": 32
+                }
+              }
+            },
+            "tags": {
+              "type": "array",
+              "description": "Tag vocabulary. Defaults to the column's choices or the lookup list's items. Required for text columns.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "tagDescriptions": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Extra context per tag, embedded together with the tag name."
+            },
+            "sourceFields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Fields whose text is used. Default [\"Title\", \"Description\"]."
+            },
+            "includeFileText": {
+              "type": "boolean",
+              "default": true,
+              "description": "For document libraries, also read the file (txt, md, csv, json, html, docx)."
+            },
+            "maxChars": {
+              "type": "integer",
+              "minimum": 100,
+              "default": 6000
+            },
+            "maxTags": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 3
+            },
+            "minScore": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "default": 0.25,
+              "description": "Minimum cosine similarity for a tag to be suggested."
+            },
+            "maxItems": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 100,
+              "description": "Most items analyzed per bulk run."
+            },
+            "mode": {
+              "enum": [
+                "review",
+                "auto"
+              ],
+              "default": "review"
+            },
+            "merge": {
+              "type": "boolean",
+              "default": true,
+              "description": "Add to existing tags (true) or replace them (false)."
+            },
+            "allow": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Who may auto-tag: \"owners\" (site owners), \"listOwners\", emails/login names and SharePoint group names. Default [\"owners\", \"listOwners\"]."
+            }
+          }
+        }
+      }
+    }
+  }
+}

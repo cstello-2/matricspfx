@@ -1,0 +1,271 @@
+{
+  "title": "Projects",
+  "id": "c8e1fd1b-f096-488d-9b0f-28cf4fc6be50",
+  "fields": {
+    "Title": {
+      "type": "Text",
+      "title": "Title",
+      "required": true
+    },
+    "Status": {
+      "type": "Choice",
+      "title": "Status",
+      "choices": [
+        "Active",
+        "At risk",
+        "On hold",
+        "Completed"
+      ]
+    },
+    "Department": {
+      "type": "Choice",
+      "title": "Department",
+      "choices": [
+        "Engineering",
+        "Operations",
+        "Marketing",
+        "Finance",
+        "HR"
+      ]
+    },
+    "Budget": {
+      "type": "Currency",
+      "title": "Budget"
+    },
+    "Owner": {
+      "type": "User",
+      "title": "Owner"
+    },
+    "StartDate": {
+      "type": "DateTime",
+      "title": "Start date",
+      "dateOnly": true
+    },
+    "DueDate": {
+      "type": "DateTime",
+      "title": "Due date",
+      "dateOnly": true
+    },
+    "Priority": {
+      "type": "Choice",
+      "title": "Priority",
+      "choices": [
+        "Low",
+        "Medium",
+        "High"
+      ]
+    }
+  },
+  "items": [
+    {
+      "Id": 1,
+      "ID": 1,
+      "Created": "2026-03-28T00:00:00Z",
+      "Modified": "2026-04-09T00:00:00Z",
+      "AuthorId": 11,
+      "Title": "Apollo CRM rollout",
+      "Status": "Active",
+      "Department": "HR",
+      "Budget": 280000,
+      "OwnerId": 20,
+      "StartDate": "2026-03-28T00:00:00Z",
+      "DueDate": "2026-12-24T00:00:00Z",
+      "Priority": "Medium"
+    },
+    {
+      "Id": 2,
+      "ID": 2,
+      "Created": "2026-07-31T00:00:00Z",
+      "Modified": "2026-08-05T00:00:00Z",
+      "AuthorId": 21,
+      "Title": "Billing platform v2",
+      "Status": "On hold",
+      "Department": "Engineering",
+      "Budget": 255000,
+      "OwnerId": 15,
+      "StartDate": "2026-07-31T00:00:00Z",
+      "DueDate": "2027-02-22T00:00:00Z",
+      "Priority": "Low"
+    },
+    {
+      "Id": 3,
+      "ID": 3,
+      "Created": "2026-09-11T00:00:00Z",
+      "Modified": "2026-09-28T00:00:00Z",
+      "AuthorId": 20,
+      "Title": "Customer portal",
+      "Status": "On hold",
+      "Department": "Operations",
+      "Budget": 185000,
+      "OwnerId": 18,
+      "StartDate": "2026-09-11T00:00:00Z",
+      "DueDate": "2027-04-02T00:00:00Z",
+      "Priority": "High"
+    },
+    {
+      "Id": 4,
+      "ID": 4,
+      "Created": "2026-03-07T00:00:00Z",
+      "Modified": "2026-03-16T00:00:00Z",
+      "AuthorId": 11,
+      "Title": "Data warehouse",
+      "Status": "Active",
+      "Department": "Marketing",
+      "Budget": 55000,
+      "OwnerId": 19,
+      "StartDate": "2026-03-07T00:00:00Z",
+      "DueDate": "2026-12-30T00:00:00Z",
+      "Priority": "Medium"
+    },
+    {
+      "Id": 5,
+      "ID": 5,
+      "Created": "2026-02-11T00:00:00Z",
+      "Modified": "2026-02-15T00:00:00Z",
+      "AuthorId": 13,
+      "Title": "Intranet refresh",
+      "Status": "Active",
+      "Department": "Operations",
+      "Budget": 115000,
+      "OwnerId": 20,
+      "StartDate": "2026-02-11T00:00:00Z",
+      "DueDate": "2026-08-02T00:00:00Z",
+      "Priority": "High"
+    },
+    {
+      "Id": 6,
+      "ID": 6,
+      "Created": "2026-07-27T00:00:00Z",
+      "Modified": "2026-08-08T00:00:00Z",
+      "AuthorId": 14,
+      "Title": "Mobile app",
+      "Status": "Active",
+      "Department": "Engineering",
+      "Budget": 295000,
+      "OwnerId": 11,
+      "StartDate": "2026-07-27T00:00:00Z",
+      "DueDate": "2027-04-26T00:00:00Z",
+      "Priority": "High"
+    },
+    {
+      "Id": 7,
+      "ID": 7,
+      "Created": "2026-02-11T00:00:00Z",
+      "Modified": "2026-02-25T00:00:00Z",
+      "AuthorId": 13,
+      "Title": "Network upgrade",
+      "Status": "Active",
+      "Department": "Marketing",
+      "Budget": 50000,
+      "OwnerId": 12,
+      "StartDate": "2026-02-11T00:00:00Z",
+      "DueDate": "2026-08-11T00:00:00Z",
+      "Priority": "Medium"
+    },
+    {
+      "Id": 8,
+      "ID": 8,
+      "Created": "2026-03-12T00:00:00Z",
+      "Modified": "2026-03-16T00:00:00Z",
+      "AuthorId": 12,
+      "Title": "Onboarding automation",
+      "Status": "On hold",
+      "Department": "HR",
+      "Budget": 250000,
+      "OwnerId": 18,
+      "StartDate": "2026-03-12T00:00:00Z",
+      "DueDate": "2026-09-21T00:00:00Z",
+      "Priority": "High"
+    },
+    {
+      "Id": 9,
+      "ID": 9,
+      "Created": "2026-06-01T00:00:00Z",
+      "Modified": "2026-06-03T00:00:00Z",
+      "AuthorId": 16,
+      "Title": "Payroll migration",
+      "Status": "At risk",
+      "Department": "HR",
+      "Budget": 140000,
+      "OwnerId": 18,
+      "StartDate": "2026-06-01T00:00:00Z",
+      "DueDate": "2026-10-01T00:00:00Z",
+      "Priority": "Medium"
+    },
+    {
+      "Id": 10,
+      "ID": 10,
+      "Created": "2026-09-05T00:00:00Z",
+      "Modified": "2026-09-22T00:00:00Z",
+      "AuthorId": 21,
+      "Title": "Security hardening",
+      "Status": "On hold",
+      "Department": "Engineering",
+      "Budget": 130000,
+      "OwnerId": 13,
+      "StartDate": "2026-09-05T00:00:00Z",
+      "DueDate": "2026-12-20T00:00:00Z",
+      "Priority": "Medium"
+    },
+    {
+      "Id": 11,
+      "ID": 11,
+      "Created": "2026-02-02T00:00:00Z",
+      "Modified": "2026-02-06T00:00:00Z",
+      "AuthorId": 13,
+      "Title": "Supplier portal",
+      "Status": "At risk",
+      "Department": "Operations",
+      "Budget": 135000,
+      "OwnerId": 10,
+      "StartDate": "2026-02-02T00:00:00Z",
+      "DueDate": "2026-11-11T00:00:00Z",
+      "Priority": "Medium"
+    },
+    {
+      "Id": 12,
+      "ID": 12,
+      "Created": "2026-06-10T00:00:00Z",
+      "Modified": "2026-06-15T00:00:00Z",
+      "AuthorId": 17,
+      "Title": "Teams telephony",
+      "Status": "On hold",
+      "Department": "Marketing",
+      "Budget": 190000,
+      "OwnerId": 12,
+      "StartDate": "2026-06-10T00:00:00Z",
+      "DueDate": "2026-12-17T00:00:00Z",
+      "Priority": "Medium"
+    },
+    {
+      "Id": 13,
+      "ID": 13,
+      "Created": "2026-05-27T00:00:00Z",
+      "Modified": "2026-05-31T00:00:00Z",
+      "AuthorId": 21,
+      "Title": "Website relaunch",
+      "Status": "Completed",
+      "Department": "Marketing",
+      "Budget": 280000,
+      "OwnerId": 10,
+      "StartDate": "2026-05-27T00:00:00Z",
+      "DueDate": "2027-03-10T00:00:00Z",
+      "Priority": "Medium"
+    },
+    {
+      "Id": 14,
+      "ID": 14,
+      "Created": "2026-04-24T00:00:00Z",
+      "Modified": "2026-05-13T00:00:00Z",
+      "AuthorId": 21,
+      "Title": "Zero-trust access",
+      "Status": "On hold",
+      "Department": "HR",
+      "Budget": 105000,
+      "OwnerId": 16,
+      "StartDate": "2026-04-24T00:00:00Z",
+      "DueDate": "2026-11-05T00:00:00Z",
+      "Priority": "Medium"
+    }
+  ]
+}

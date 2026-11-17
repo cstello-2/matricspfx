@@ -1,0 +1,158 @@
+{
+  "title": "Service desk",
+  "description": "Tickets list: volume, resolution time, routing and satisfaction.",
+  "dataSources": {
+    "tickets": {
+      "type": "spList",
+      "list": "Tickets",
+      "select": ["Id", "Title", "Category", "Priority", "Status", "Channel", "Team", "Created", "ResolvedDate", "Satisfaction", "AssignedTo/Title"],
+      "orderBy": "Created desc"
+    }
+  },
+  "list": {
+    "source": "tickets",
+    "title": "Tickets",
+    "keyPrefix": "HD",
+    "columns": ["Title", "Status", "Priority", "Category", "Team", "AssignedTo", "Created"],
+    "sort": "-Created",
+    "quickFilters": ["Status", "Priority", "Team"],
+    "statusColors": { "New": "neutral", "Assigned": "info", "In progress": "info", "Waiting on user": "warning", "Resolved": "good", "Closed": "good" },
+    "form": {
+      "status": "Status",
+      "main": ["Description"],
+      "side": [
+        { "title": "Details", "fields": ["Status", "AssignedTo", "Priority", "Category"] },
+        { "title": "Routing", "fields": ["Channel", "Team"] },
+        { "title": "Resolution", "fields": ["ResolvedDate", "Satisfaction"] }
+      ]
+    }
+  },
+  "datasets": {
+    "open": { "from": "tickets", "filter": "!(Status in ['Resolved', 'Closed'])" },
+    "resolved": {
+      "from": "tickets",
+      "filter": "ResolvedDate != null",
+      "compute": { "hoursToResolve": "(date(ResolvedDate) - date(Created)) * 24" }
+    },
+    "last30": { "from": "tickets", "filter": "daysBetween(Created, $today) < 30" },
+    "prev30": { "from": "tickets", "filter": "daysBetween(Created, $today) >= 30 && daysBetween(Created, $today) < 60" },
+    "resolvedLast30": { "from": "resolved", "filter": "daysBetween(ResolvedDate, $today) < 30" },
+    "resolvedPrev30": { "from": "resolved", "filter": "daysBetween(ResolvedDate, $today) >= 30 && daysBetween(ResolvedDate, $today) < 60" },
+    "createdWeekly": {
+      "from": "tickets",
+      "filter": "daysBetween(Created, $today) <= 84",
+      "groupBy": [{ "field": "Created", "bucket": "week", "as": "week" }],
+      "aggregate": { "created": "count()" }
+    },
+    "resolvedWeekly": {
+      "from": "resolved",
+      "filter": "daysBetween(ResolvedDate, $today) <= 84",
+      "groupBy": [{ "field": "ResolvedDate", "bucket": "week", "as": "week" }],
+      "aggregate": { "resolved": "count()" }
+    },
+    "flow": {
+      "from": "createdWeekly",
+      "join": [{ "source": "resolvedWeekly", "on": ["week", "week"], "as": "r" }],
+      "compute": { "resolved": "r.resolved ?? 0" },
+      "sort": "week"
+    },
+    "openMatrix": {
+      "from": "open",
+      "compute": { "priority": "Priority == 'Urgent' ? '1 Urgent' : Priority == 'High' ? '2 High' : Priority == 'Normal' ? '3 Normal' : '4 Low'" },
+      "groupBy": ["Category", "priority"],
+      "aggregate": { "tickets": "count()" }
+    },
+    "channelToCategory": {
+      "from": "tickets",
+      "groupBy": [{ "field": "Channel", "as": "from" }, { "field": "Category", "as": "to" }],
+      "aggregate": { "tickets": "count()" }
+    },
+    "categoryToTeam": {
+      "from": "tickets",
+      "groupBy": [{ "field": "Category", "as": "from" }, { "field": "Team", "as": "to" }],
+      "aggregate": { "tickets": "count()" }
+    },
+    "routing": { "from": ["channelToCategory", "categoryToTeam"] },
+    "byTeam": {
+      "from": "tickets",
+      "compute": {
+        "isOpen": "!(Status in ['Resolved', 'Closed'])",
+        "days": "ResolvedDate != null ? date(ResolvedDate) - date(Created) : null"
+      },
+      "groupBy": ["Team"],
+      "aggregate": {
+        "open": "countIf(isOpen)",
+        "urgent": "countIf(isOpen && Priority == 'Urgent')",
+        "resolved": "countIf(!isOpen)",
+        "medianDays": "median(days)",
+        "csat": "avg(Satisfaction)"
+      },
+      "sort": "-open"
+    }
+  },
+  "widgets": [
+    {
+      "type": "kpi", "span": 3, "dataset": "open",
+      "label": "Open tickets", "value": "count()",
+      "thresholds": [
+        { "when": "value < 40", "level": "good", "label": "Healthy backlog" },
+        { "when": "value < 70", "level": "warning", "label": "Growing backlog" },
+        { "when": "true", "level": "critical", "label": "Backlog too large" }
+      ]
+    },
+    {
+      "type": "kpi", "span": 3, "dataset": "last30",
+      "label": "New tickets, last 30 days", "value": "count()",
+      "compare": { "dataset": "prev30", "value": "count()", "label": "vs prior 30 days", "goodWhen": "down" },
+      "sparkline": { "dataset": "flow", "x": "week", "y": "created" }
+    },
+    {
+      "type": "kpi", "span": 3, "dataset": "resolvedLast30",
+      "label": "Median time to resolve", "value": "median(hoursToResolve)", "format": { "type": "number", "decimals": 1, "suffix": " h" },
+      "compare": { "dataset": "resolvedPrev30", "value": "median(hoursToResolve)", "label": "vs prior 30 days", "goodWhen": "down" }
+    },
+    {
+      "type": "chart", "chart": "gauge", "span": 3, "height": 150,
+      "title": "Satisfaction", "subtitle": "Average rating, 1–5",
+      "dataset": "resolved", "value": "avg(Satisfaction)", "min": 0, "max": 5, "format": { "type": "decimal", "decimals": 2 }
+    },
+    {
+      "type": "chart", "chart": "area", "span": 8,
+      "title": "Created vs resolved", "subtitle": "Per week, last 12 weeks",
+      "dataset": "flow", "x": "week",
+      "y": [{ "field": "created", "name": "Created" }, { "field": "resolved", "name": "Resolved" }]
+    },
+    {
+      "type": "chart", "chart": "donut", "span": 4,
+      "title": "Tickets by channel",
+      "dataset": { "from": "tickets", "groupBy": ["Channel"], "aggregate": { "n": "count()" } },
+      "x": "Channel", "y": "n"
+    },
+    {
+      "type": "chart", "chart": "sankey", "span": 7, "height": 320,
+      "title": "Routing", "subtitle": "Channel → category → team",
+      "dataset": "routing", "from": "from", "to": "to", "value": "tickets"
+    },
+    {
+      "type": "chart", "chart": "heatmap", "span": 5, "height": 320,
+      "title": "Open tickets by category and priority",
+      "dataset": "openMatrix", "x": "priority", "series": "Category", "value": "tickets"
+    },
+    {
+      "type": "table", "span": 12, "title": "Teams",
+      "dataset": "byTeam",
+      "columns": [
+        "Team",
+        { "field": "open", "title": "Open", "bar": true },
+        { "field": "urgent", "title": "Urgent", "status": [{ "when": "value == 0", "level": "good" },{ "when": "value <= 2", "level": "warning" }, { "when": "true", "level": "critical" }] },
+        { "field": "resolved", "title": "Resolved" },
+        { "field": "medianDays", "title": "Median days to resolve", "format": { "type": "decimal", "decimals": 1 } },
+        { "field": "csat", "title": "CSAT", "format": { "type": "decimal", "decimals": 2 } }
+      ],
+      "detail": {
+        "dataset": "open", "on": ["Team", "Team"], "title": "Open tickets",
+        "columns": ["Title", "Priority", "Status", { "field": "AssignedTo.Title", "title": "Assigned to" }, { "field": "Created", "format": "date" }]
+      }
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "title": "Policies",
+  "id": "5eba75ae-578c-486d-b299-bade58b683ce",
+  "baseTemplate": 101,
+  "fields": {
+    "FileLeafRef": {
+      "type": "File",
+      "title": "Name",
+      "readOnly": true
+    },
+    "Title": {
+      "type": "Text",
+      "title": "Title"
+    },
+    "Summary": {
+      "type": "Note",
+      "title": "Summary"
+    },
+    "Department": {
+      "type": "Choice",
+      "title": "Department",
+      "choices": [
+        "HR",
+        "Finance",
+        "IT",
+        "Legal",
+        "Facilities"
+      ]
+    },
+    "Topics": {
+      "type": "MultiChoice",
+      "title": "Topics",
+      "choices": [
+        "HR",
+        "Finance",
+        "Travel",
+        "Security",
+        "Remote work",
+        "Privacy",
+        "Health and safety",
+        "Procurement",
+        "Conduct"
+      ]
+    }
+  },
+  "items": [
+    {
+      "Id": 1,
+      "ID": 1,
+      "Created": "2026-07-30T00:00:00Z",
+      "Modified": "2026-08-02T00:00:00Z",
+      "AuthorId": 10,
+      "Title": "Remote work policy",
+      "FileLeafRef": "Remote work policy.docx",
+      "FileRef": "/sites/dev/Policies/Remote work policy.docx",
+      "Summary": "Rules for working from home and other locations.",
+      "Department": "HR",
+      "Topics": [
+        "Remote work",
+        "HR"
+      ]
+    },
+    {
+      "Id": 2,
+      "ID": 2,
+      "Created": "2026-02-14T00:00:00Z",
+      "Modified": "2026-02-14T00:00:00Z",
+      "AuthorId": 13,
+      "Title": "Travel and expenses",
+      "FileLeafRef": "Travel and expenses.docx",
+      "FileRef": "/sites/dev/Policies/Travel and expenses.docx",
+      "Summary": "Booking travel and claiming expenses.",
+      "Department": "Finance",
+      "Topics": [
+        "Finance",
+        "Travel"
+      ]
+    },
+    {
+      "Id": 3,
+      "ID": 3,
+      "Created": "2026-06-02T00:00:00Z",
+      "Modified": "2026-06-20T00:00:00Z",
+      "AuthorId": 20,
+      "Title": "Password and MFA standard",
+      "FileLeafRef": "Password and MFA standard.docx",
+      "FileRef": "/sites/dev/Policies/Password and MFA standard.docx",
+      "Summary": "Requirements for passwords and multi-factor authentication.",
+      "Department": "IT",
+      "Topics": []
+    },
+    {
+      "Id": 4,
+      "ID": 4,
+      "Created": "2026-01-24T00:00:00Z",
+      "Modified": "2026-01-29T00:00:00Z",
+      "AuthorId": 11,
+      "Title": "Onboarding checklist",
+      "FileLeafRef": "Onboarding checklist.md",
+      "FileRef": "/sites/dev/Policies/Onboarding checklist.md",
+      "Summary": "First week tasks for new starters.",
+      "Department": "HR",
+      "Topics": []
+    },
+    {
+      "Id": 5,
+      "ID": 5,
+      "Created": "2026-09-01T00:00:00Z",
+      "Modified": "2026-09-15T00:00:00Z",
+      "AuthorId": 16,
+      "Title": "Data retention schedule",
+      "FileLeafRef": "Data retention schedule.txt",
+      "FileRef": "/sites/dev/Policies/Data retention schedule.txt",
+      "Summary": "How long different records are kept.",
+      "Department": "Legal",
+      "Topics": []
+    },
+    {
+      "Id": 6,
+      "ID": 6,
+      "Created": "2026-03-14T00:00:00Z",
+      "Modified": "2026-03-16T00:00:00Z",
+      "AuthorId": 19,
+      "Title": "Purchasing guidelines",
+      "FileLeafRef": "Purchasing guidelines.docx",
+      "FileRef": "/sites/dev/Policies/Purchasing guidelines.docx",
+      "Summary": "Approval limits for buying goods and services.",
+      "Department": "Finance",
+      "Topics": []
+    },
+    {
+      "Id": 7,
+      "ID": 7,
+      "Created": "2026-09-04T00:00:00Z",
+      "Modified": "2026-09-15T00:00:00Z",
+      "AuthorId": 17,
+      "Title": "Incident response plan",
+      "FileLeafRef": "Incident response plan.md",
+      "FileRef": "/sites/dev/Policies/Incident response plan.md",
+      "Summary": "What to do during a security incident.",
+      "Department": "IT",
+      "Topics": []
+    },
+    {
+      "Id": 8,
+      "ID": 8,
+      "Created": "2026-06-12T00:00:00Z",
+      "Modified": "2026-06-20T00:00:00Z",
+      "AuthorId": 17,
+      "Title": "Parental leave policy",
+      "FileLeafRef": "Parental leave policy.docx",
+      "FileRef": "/sites/dev/Policies/Parental leave policy.docx",
+      "Summary": "Leave entitlements for new parents.",
+      "Department": "HR",
+      "Topics": []
+    },
+    {
+      "Id": 9,
+      "ID": 9,
+      "Created": "2026-07-21T00:00:00Z",
+      "Modified": "2026-08-01T00:00:00Z",
+      "AuthorId": 12,
+      "Title": "Company car policy",
+      "FileLeafRef": "Company car policy.pdf",
+      "FileRef": "/sites/dev/Policies/Company car policy.pdf",
+      "Summary": "Eligibility and rules for company cars and fuel cards.",
+      "Department": "Finance",
+      "Topics": []
+    },
+    {
+      "Id": 10,
+      "ID": 10,
+      "Created": "2026-08-22T00:00:00Z",
+      "Modified": "2026-08-22T00:00:00Z",
+      "AuthorId": 10,
+      "Title": "Acceptable use of IT",
+      "FileLeafRef": "Acceptable use of IT.txt",
+      "FileRef": "/sites/dev/Policies/Acceptable use of IT.txt",
+      "Summary": "Using company devices, email and internet responsibly.",
+      "Department": "IT",
+      "Topics": []
+    },
+    {
+      "Id": 11,
+      "ID": 11,
+      "Created": "2026-06-21T00:00:00Z",
+      "Modified": "2026-06-29T00:00:00Z",
+      "AuthorId": 14,
+      "Title": "Health and safety at the office",
+      "FileLeafRef": "Health and safety at the office.docx",
+      "FileRef": "/sites/dev/Policies/Health and safety at the office.docx",
+      "Summary": "Keeping the workplace safe.",
+      "Department": "Facilities",
+      "Topics": []
+    },
+    {
+      "Id": 12,
+      "ID": 12,
+      "Created": "2026-03-04T00:00:00Z",
+      "Modified": "2026-03-24T00:00:00Z",
+      "AuthorId": 11,
+      "Title": "Code of conduct",
+      "FileLeafRef": "Code of conduct.md",
+      "FileRef": "/sites/dev/Policies/Code of conduct.md",
+      "Summary": "How we behave with colleagues, customers and suppliers.",
+      "Department": "Legal",
+      "Topics": []
+    }
+  ],
+  "comments": {}
+}

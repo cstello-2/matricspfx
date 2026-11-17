@@ -1,0 +1,5 @@
+Customer contracts are retained for seven years after expiry.
+
+Personal data of former employees is deleted after two years under GDPR.
+
+Backups are encrypted and kept for 35 days.

@@ -1,0 +1,190 @@
+{
+  "title": "Project portfolio",
+  "description": "Projects and Tasks lists, joined on the Project lookup.",
+  "refreshSeconds": 300,
+  "dataSources": {
+    "projects": {
+      "type": "spList",
+      "list": "Projects",
+      "select": ["Id", "Title", "Status", "Department", "Budget", "Priority", "StartDate", "DueDate", "Owner/Title", "Owner/EMail"]
+    },
+    "tasks": {
+      "type": "spList",
+      "list": "Tasks",
+      "select": ["Id", "Title", "Status", "Priority", "EstimateHours", "ActualHours", "Created", "CompletedDate", "ProjectId", "Project/Title", "AssignedTo/Title"],
+      "top": 5000
+    }
+  },
+  "list": {
+    "source": "tasks",
+    "title": "Tasks",
+    "keyPrefix": "TASK",
+    "columns": ["Title", "Status", "Priority", "AssignedTo", "Project", "EstimateHours", "Modified"],
+    "sort": "-Modified",
+    "quickFilters": ["Status", "Priority", "AssignedTo"],
+    "statusColors": { "Not started": "neutral", "In progress": "info", "Blocked": "critical", "Done": "good" },
+    "form": {
+      "status": "Status",
+      "main": [
+        "Description",
+        { "title": "Effort", "columns": 2, "fields": ["EstimateHours", "ActualHours"] }
+      ],
+      "side": [
+        { "title": "Details", "fields": ["Status", "AssignedTo", "Priority", "Project"] },
+        { "title": "Dates", "fields": ["CompletedDate"] },
+        { "title": "Labels", "fields": ["Tags"] }
+      ]
+    },
+    "autotag": {
+      "field": "Tags",
+      "api": { "baseUrl": "/mock-ai/v1", "embeddingModel": "mock-embedding" },
+      "tagDescriptions": {
+        "frontend": "UI, user interface, screens, web pages",
+        "backend": "API, data model, integration, services, pipeline",
+        "infra": "deploy, configure, cutover, migrate, environments, permissions",
+        "docs": "document, documentation, training, reports",
+        "qa": "test, testing, validate, review, quality"
+      },
+      "sourceFields": ["Title", "Description"],
+      "maxTags": 2,
+      "minScore": 0.1
+    }
+  },
+  "dataView": {
+    "sources": [
+      { "name": "tasks", "title": "Tasks", "columns": ["Id", "Title", "Status", "Priority", { "field": "Project.Title", "title": "Project" }, { "field": "AssignedTo.Title", "title": "Assigned to" }, { "field": "EstimateHours", "title": "Estimate (h)" }, { "field": "ActualHours", "title": "Actual (h)" }, { "field": "Created", "format": "date" }, { "field": "CompletedDate", "title": "Completed", "format": "date" }] },
+      { "name": "projects", "title": "Projects", "columns": ["Id", "Title", "Status", "Department", { "field": "Budget", "format": "currency" }, { "field": "Owner.Title", "title": "Owner" }, { "field": "StartDate", "title": "Start", "format": "date" }, { "field": "DueDate", "title": "Due", "format": "date" }] },
+      { "name": "projectStats", "title": "Project summary (calculated)", "columns": ["Title", { "field": "owner", "title": "Owner" }, "Status", { "field": "progress", "title": "Progress", "format": "percent" }, { "field": "hours", "title": "Hours logged" }, { "field": "blocked", "title": "Blocked tasks" }, { "field": "Budget", "format": "currency" }, { "field": "spend", "title": "Spend", "format": "currency" }, { "field": "daysLeft", "title": "Days left", "format": "integer" }] }
+    ],
+    "pageSize": 25
+  },
+  "datasets": {
+    "openTasks": { "from": "tasks", "filter": "Status != 'Done'" },
+    "taskTotals": {
+      "from": "tasks",
+      "groupBy": ["ProjectId"],
+      "aggregate": {
+        "tasks": "count()",
+        "done": "countIf(Status == 'Done')",
+        "blocked": "countIf(Status == 'Blocked')",
+        "hours": "sum(ActualHours)"
+      }
+    },
+    "projectStats": {
+      "from": "projects",
+      "join": [{ "source": "taskTotals", "on": ["Id", "ProjectId"], "as": "t" }],
+      "compute": {
+        "owner": "Owner.Title",
+        "progress": "safeDiv(t.done, t.tasks, 0)",
+        "hours": "t.hours ?? 0",
+        "blocked": "t.blocked ?? 0",
+        "spend": "(t.hours ?? 0) * 95",
+        "daysLeft": "Status == 'Completed' ? null : daysBetween($today, DueDate)"
+      },
+      "sort": ["Status", "-progress"]
+    },
+    "statusByProject": {
+      "from": "tasks",
+      "groupBy": [{ "field": "Project.Title", "as": "project" }, "Status"],
+      "aggregate": { "tasks": "count()" },
+      "sort": "project"
+    },
+    "throughput": {
+      "from": "tasks",
+      "filter": "CompletedDate != null && daysBetween(CompletedDate, $today) <= 91",
+      "groupBy": [{ "field": "CompletedDate", "bucket": "week", "as": "week" }],
+      "aggregate": { "completed": "count()", "hours": "sum(ActualHours)" },
+      "sort": "week"
+    },
+    "budgetByDepartment": {
+      "from": "projects",
+      "groupBy": ["Department"],
+      "aggregate": { "budget": "sum(Budget)" }
+    },
+    "workload": {
+      "from": "openTasks",
+      "groupBy": [{ "field": "AssignedTo.Title", "as": "person" }],
+      "aggregate": { "open": "count()", "remaining": "sum(max(EstimateHours - ActualHours, 0))" },
+      "sort": "-remaining",
+      "limit": 8
+    }
+  },
+  "widgets": [
+    {
+      "type": "kpi", "span": 3, "dataset": "projects",
+      "label": "Active projects", "value": "countIf(Status in ['Active', 'At risk'])"
+    },
+    {
+      "type": "kpi", "span": 3, "dataset": "projects",
+      "label": "Projects at risk", "value": "countIf(Status == 'At risk')",
+      "thresholds": [
+        { "when": "value == 0", "level": "good", "label": "None at risk" },
+        { "when": "value <= 2", "level": "warning", "label": "Watch" },
+        { "when": "true", "level": "critical", "label": "Escalate" }
+      ]
+    },
+    {
+      "type": "kpi", "span": 3, "dataset": "tasks",
+      "label": "Task completion", "value": "countIf(Status == 'Done') / count()", "format": "percent",
+      "target": 0.75,
+      "thresholds": [
+        { "when": "value >= target", "level": "good" },
+        { "when": "value >= target * 0.8", "level": "warning" },
+        { "when": "true", "level": "serious" }
+      ]
+    },
+    {
+      "type": "kpi", "span": 3,
+      "dataset": { "from": "tasks", "filter": "CompletedDate != null && daysBetween(CompletedDate, $today) < 30" },
+      "label": "Completed last 30 days", "value": "count()",
+      "compare": {
+        "dataset": { "from": "tasks", "filter": "CompletedDate != null && daysBetween(CompletedDate, $today) >= 30 && daysBetween(CompletedDate, $today) < 60" },
+        "value": "count()", "label": "vs prior 30 days"
+      },
+      "sparkline": { "dataset": "throughput", "x": "week", "y": "completed" }
+    },
+    {
+      "type": "chart", "chart": "bar", "span": 7, "height": 360,
+      "title": "Tasks by project", "subtitle": "Stacked by status",
+      "dataset": "statusByProject", "x": "project", "y": "tasks", "series": "Status", "stacked": true
+    },
+    {
+      "type": "chart", "chart": "line", "span": 5, "height": 360,
+      "title": "Weekly throughput", "subtitle": "Tasks completed, last 13 weeks",
+      "dataset": "throughput", "x": "week", "y": { "field": "completed", "name": "Completed" }, "smooth": true
+    },
+    {
+      "type": "chart", "chart": "treemap", "span": 5,
+      "title": "Budget by department",
+      "dataset": "budgetByDepartment", "x": "Department", "y": "budget", "format": "currency"
+    },
+    {
+      "type": "chart", "chart": "column", "span": 7,
+      "title": "Open work by person", "subtitle": "Remaining estimated hours",
+      "dataset": "workload", "x": "person", "y": { "field": "remaining", "name": "Remaining hours" }, "format": "integer"
+    },
+    {
+      "type": "table", "span": 12, "title": "Projects", "subtitle": "Expand a project to see its tasks",
+      "dataset": "projectStats", "search": true, "pageSize": 8,
+      "columns": [
+        { "field": "Title", "title": "Project" },
+        { "field": "owner", "title": "Owner" },
+        { "field": "Status", "status": [
+          { "when": "value == 'Completed'", "level": "good", "label": "Completed" },
+          { "when": "value == 'At risk'", "level": "critical", "label": "At risk" },
+          { "when": "value == 'On hold'", "level": "warning", "label": "On hold" },
+          { "when": "true", "level": "neutral", "label": "Active" }
+        ] },
+        { "field": "progress", "title": "Progress", "format": "percent", "bar": true },
+        { "field": "blocked", "title": "Blocked" },
+        { "field": "Budget", "format": "currency" },
+        { "field": "spend", "title": "Spend", "format": "currency" },
+        { "field": "daysLeft", "title": "Days left", "format": "integer" }
+      ],
+      "detail": {
+        "dataset": "tasks", "on": ["Id", "ProjectId"], "title": "Tasks",
+        "columns": ["Title", "Status", "Priority", { "field": "AssignedTo.Title", "title": "Assigned to" }, { "field": "ActualHours", "title": "Hours" }]
+      }
+    }
+  ]
+}

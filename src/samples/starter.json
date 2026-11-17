@@ -1,0 +1,82 @@
+{
+  "title": "Sales overview",
+  "description": "Starter example with inline data. Replace the \"sales\" source with { \"type\": \"spList\", \"list\": \"Sales\" } to read a SharePoint list.",
+  "dataSources": {
+    "sales": {
+      "type": "inline",
+      "rows": [
+        { "Region": "North", "Month": "2026-01", "Revenue": 42000, "Deals": 12, "Target": 40000 },
+        { "Region": "South", "Month": "2026-01", "Revenue": 31000, "Deals": 9, "Target": 35000 },
+        { "Region": "West", "Month": "2026-01", "Revenue": 27000, "Deals": 8, "Target": 30000 },
+        { "Region": "North", "Month": "2026-02", "Revenue": 46500, "Deals": 14, "Target": 40000 },
+        { "Region": "South", "Month": "2026-02", "Revenue": 33800, "Deals": 10, "Target": 35000 },
+        { "Region": "West", "Month": "2026-02", "Revenue": 30100, "Deals": 9, "Target": 30000 },
+        { "Region": "North", "Month": "2026-03", "Revenue": 51200, "Deals": 15, "Target": 45000 },
+        { "Region": "South", "Month": "2026-03", "Revenue": 36400, "Deals": 11, "Target": 35000 },
+        { "Region": "West", "Month": "2026-03", "Revenue": 34900, "Deals": 10, "Target": 32000 },
+        { "Region": "North", "Month": "2026-04", "Revenue": 49800, "Deals": 13, "Target": 45000 },
+        { "Region": "South", "Month": "2026-04", "Revenue": 39900, "Deals": 12, "Target": 38000 },
+        { "Region": "West", "Month": "2026-04", "Revenue": 38200, "Deals": 12, "Target": 34000 }
+      ]
+    }
+  },
+  "datasets": {
+    "byMonth": {
+      "from": "sales",
+      "groupBy": [{ "field": "Month", "bucket": "month", "as": "month" }],
+      "aggregate": { "revenue": "sum(Revenue)", "deals": "sum(Deals)", "target": "sum(Target)" },
+      "sort": "month"
+    },
+    "byRegion": {
+      "from": "sales",
+      "groupBy": ["Region"],
+      "aggregate": { "revenue": "sum(Revenue)", "deals": "sum(Deals)", "attainment": "sum(Revenue) / sum(Target)" },
+      "sort": "-revenue"
+    },
+    "lastMonth": { "from": "sales", "filter": "Month == '2026-04'" },
+    "prevMonth": { "from": "sales", "filter": "Month == '2026-03'" }
+  },
+  "widgets": [
+    {
+      "type": "kpi", "span": 4, "dataset": "lastMonth",
+      "label": "Revenue this month", "value": "sum(Revenue)", "format": "currency",
+      "compare": { "dataset": "prevMonth", "value": "sum(Revenue)", "label": "vs last month" },
+      "sparkline": { "dataset": "byMonth", "x": "month", "y": "revenue" }
+    },
+    {
+      "type": "kpi", "span": 4, "dataset": "lastMonth",
+      "label": "Deals closed", "value": "sum(Deals)",
+      "compare": { "dataset": "prevMonth", "value": "sum(Deals)", "label": "vs last month" }
+    },
+    {
+      "type": "kpi", "span": 4, "dataset": "lastMonth",
+      "label": "Target attainment", "value": "sum(Revenue) / sum(Target)", "format": "percent",
+      "target": 1.1,
+      "thresholds": [
+        { "when": "value >= 1", "level": "good", "label": "Above target" },
+        { "when": "value >= 0.9", "level": "warning", "label": "Near target" },
+        { "when": "true", "level": "critical", "label": "Below target" }
+      ]
+    },
+    {
+      "type": "chart", "chart": "column", "span": 8, "title": "Revenue by region", "subtitle": "Monthly, 2026",
+      "dataset": "sales", "x": "Month", "y": "Revenue", "series": "Region", "format": "currency"
+    },
+    {
+      "type": "chart", "chart": "donut", "span": 4, "title": "Share of revenue",
+      "dataset": "byRegion", "x": "Region", "y": "revenue", "format": "currency"
+    },
+    {
+      "type": "table", "span": 12, "title": "Regions",
+      "dataset": "byRegion",
+      "columns": [
+        "Region",
+        { "field": "revenue", "title": "Revenue", "format": "currency", "bar": true },
+        { "field": "deals", "title": "Deals" },
+        { "field": "attainment", "title": "Attainment", "format": "percent",
+          "status": [{ "when": "value >= 1", "level": "good" }, { "when": "value >= 0.95", "level": "warning" }, { "when": "true", "level": "critical" }] }
+      ],
+      "detail": { "dataset": "sales", "on": ["Region", "Region"], "title": "Monthly figures", "columns": ["Month", { "field": "Revenue", "format": "currency" }, "Deals"] }
+    }
+  ]
+}

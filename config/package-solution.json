@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "metricspfx-client-side-solution",
+    "id": "344c132f-928d-4e54-90f1-0a72d5a9bd3d",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.24.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "metricspfx description"
+      },
+      "longDescription": {
+        "default": "metricspfx description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "metricspfx Feature",
+        "description": "The feature that activates elements of the metricspfx solution.",
+        "id": "81ebbfe1-68ed-4a9f-bbf8-874f843b4eda",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/metricspfx.sppkg"
+  }
+}
